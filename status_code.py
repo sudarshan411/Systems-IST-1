@@ -1,19 +1,65 @@
-#!/usr/bin/env python3
+# python3 status_code.py 5 3 / python status_code.py 5 3
+# will fetch status code of websites in the list 
+# after intervals of 5 seconds and this program
+# will run for 3 iterations
 
+
+#importing libraries
 import requests
+import smtplib
+import csv
+from string import Template
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import click
 import time
 from datetime import datetime
 
-# python3 status_code.py 5 3
-# will fetch status code of websites in the list 
-# after intervals of 5 seconds and this program
-# will run for 3 iterations
+#mailer address and password to set up SMTP and send mails
+SENDER_ADDRESS = "tmail42021@gmail.com"
+PASSWORD = "abc123de45"
+
+
+
+#extracting contacts from csv file
+def contact_extract():
+    contact = []
+    with open('contacts.csv', 'r') as file:
+        reader = csv.reader(file, delimiter = ',')
+        for p in reader:        
+            contact.append(p);
+    contact = contact[1:]
+    to_address = ""
+    for c in contact:
+        to_address += c[1]
+        to_address += ','
+    to_address = to_address[:-1]
+    return to_address
+
+#constructing the email contents
+def message_construct(resp):
+    subject = "Bad response code from website"
+    message = "Hi!\nThe website " + resp.url + f" is not working!\nError code: {resp.status_code}"
+    message += "\nError: " + resp.reason
+    email_msg = MIMEMultipart()
+    email_msg['Subject'] = subject
+    email_msg.attach(MIMEText(message, 'plain'))
+    return email_msg
 
 @click.command()
 @click.argument('timer', default=10)
 @click.argument('count', default=1)
 def main(timer, count):
+
+    #extracting contacts
+    to_addr = contact_extract()
+
+    #setting up SMTP
+    smtp = smtplib.SMTP('smtp.gmail.com', port = '587')
+    smtp.ehlo()
+    smtp.starttls()
+    smtp.login(SENDER_ADDRESS, PASSWORD)
+
     # list.txt contains the list of websites to be tracked
     file1 = open('list.txt', 'r')
     lines = file1.readlines()
@@ -26,7 +72,6 @@ def main(timer, count):
     while count > 0:
         for line in lines:
             addr = "https://" + line.strip()
-            print(addr)
 
             resp = requests.get(addr)
             now = datetime.now()
@@ -36,14 +81,22 @@ def main(timer, count):
                 str = current_time + " : " + addr + " is working\n"
                 file2.write(str)
             else:
-                str = current_time + " : " + addr + " has error : " + resp.status_code + "\n"
+                str = current_time + " : " + addr + f" has error : {resp.status_code}\n"
                 file2.write(str)
+
+                #constructing a message
+                msg = message_construct(resp)
+
+                rcpt = to_addr.split(",")               #recipients list
+                msg['To'] = to_addr
+                smtp.sendmail(SENDER_ADDRESS, rcpt, msg.as_string())
 
         # repeat after timer seconds
         time.sleep(timer)
         count -= 1
     
+    smtp.quit()
     file2.close()
-
+    
 if __name__ == "__main__":
     main()

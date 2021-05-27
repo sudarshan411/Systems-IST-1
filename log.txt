@@ -1,4 +1,12 @@
-15:46:29 : https://stackoverflow.com is working
-15:46:30 : https://codeforces.com is working
-15:46:36 : https://stackoverflow.com is working
-15:46:37 : https://codeforces.com is working
+21:13:43 : https://stackoverflow.com is working
+21:13:44 : https://httpbin.org/status/502 has error : 502
+21:13:46 : https://codeforces.com is working
+21:13:47 : https://httpbin.org/status/404 has error : 404
+21:13:54 : https://stackoverflow.com is working
+21:13:55 : https://httpbin.org/status/502 has error : 502
+21:13:58 : https://codeforces.com is working
+21:13:59 : https://httpbin.org/status/404 has error : 404
+21:14:06 : https://stackoverflow.com is working
+21:14:07 : https://httpbin.org/status/502 has error : 502
+21:14:09 : https://codeforces.com is working
+21:14:10 : https://httpbin.org/status/404 has error : 404

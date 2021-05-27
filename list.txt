@@ -1,2 +1,4 @@
 stackoverflow.com
+httpbin.org/status/502
 codeforces.com
+httpbin.org/status/404
