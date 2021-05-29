@@ -1,7 +1,8 @@
-# python3 status_code.py 5 3 / python status_code.py 5 3
+# python3 status_code.py 5 3
 # will fetch status code of websites in the list 
 # after intervals of 5 seconds and this program
 # will run for 3 iterations
+# total time = approx (no. of iterations * sleep time)
 
 
 #importing libraries
@@ -13,6 +14,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import click
 import time
+import validators
 from datetime import datetime
 
 #mailer address and password to set up SMTP and send mails
@@ -60,18 +62,24 @@ def main(timer, count):
     smtp.starttls()
     smtp.login(SENDER_ADDRESS, PASSWORD)
 
-    # list.txt contains the list of websites to be tracked
-    file1 = open('list.txt', 'r')
-    lines = file1.readlines()
-    file1.close()
-
     # to store the all the results
     file2 = open('log.txt', 'w')
 
     # keep running for count iterations
     while count > 0:
+        # list.txt contains the list of websites to be tracked
+        # keep reading it again to stay most updated
+        file1 = open('list.txt', 'r')
+        lines = file1.readlines()
+
         for line in lines:
             addr = "https://" + line.strip()
+            #check if url is valid otherwise skip
+            if validators.url(addr):
+                print(addr)
+            else:
+                print(addr + " is not a valid url")
+                continue
 
             resp = requests.get(addr)
             now = datetime.now()
@@ -92,6 +100,7 @@ def main(timer, count):
                 smtp.sendmail(SENDER_ADDRESS, rcpt, msg.as_string())
 
         # repeat after timer seconds
+        file1.close()
         time.sleep(timer)
         count -= 1
     
